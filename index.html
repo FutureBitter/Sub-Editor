@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <title>SUB Config Decoder — PRO MODE</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- QR Code Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 
 <style>
 :root{
@@ -94,6 +96,7 @@ button.ghost:hover{background:rgba(255,255,255,0.05)}
 .ping-badge:hover {filter: brightness(1.2);}
 
 .action-btn {padding: 6px; border-radius: 6px; background: transparent; border: var(--border);}
+.action-btn:hover {background: rgba(255,255,255,0.1);}
 
 /* Happ Section */
 .happ-box {
@@ -103,6 +106,17 @@ button.ghost:hover{background:rgba(255,255,255,0.05)}
     border: 1px solid rgba(92, 124, 255, 0.2);
     border-radius: 12px;
 }
+
+/* Modal */
+.modal {
+    display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.8); align-items: center; justify-content: center;
+}
+.modal-content {
+    background-color: var(--card); padding: 20px; border-radius: 16px; border: var(--border);
+    text-align: center; max-width: 90%;
+}
+.close-modal {margin-top: 15px; background: var(--error);}
 
 @media(max-width:900px){
     .container{grid-template-columns:1fr}
@@ -117,7 +131,7 @@ button.ghost:hover{background:rgba(255,255,255,0.05)}
 <!-- LEFT PANEL -->
 <div class="card">
     <div class="row" style="justify-content: space-between; margin-bottom: 10px;">
-        <h2>🚀 Config Decoder <span style="font-size:12px; opacity:0.6; font-weight:400">v2.0</span></h2>
+        <h2>🚀 Config Decoder <span style="font-size:12px; opacity:0.6; font-weight:400">PRO</span></h2>
         <div class="row">
             <button class="ghost" onclick="testAllPings()">⚡ Test All Pings</button>
             <button class="ghost" onclick="clearAll()">🗑️ Clear</button>
@@ -162,20 +176,21 @@ button.ghost:hover{background:rgba(255,255,255,0.05)}
     <!-- HAPP EXPORT SECTION -->
     <div class="happ-box">
         <h4 style="margin:0 0 10px 0; color: #60a5fa">🔹 Happ / Telegram Support</h4>
-        <p class="small" style="margin-bottom:12px">Export configs with <b style="color:#fff">TheFachur</b> support tag.</p>
+        <p class="small" style="margin-bottom:12px">Use this to import into Happ with <b>TheFachur</b> tag.</p>
         
-        <div style="display:grid; gap:8px">
-            <button onclick="copyHappFormat()">📋 Copy for Happ</button>
-            <button class="ghost" onclick="downloadHappFile()">💾 Download .conf file</button>
-        </div>
-        <p class="small" style="margin-top:8px; font-size:11px; opacity:0.7">
-            * Import the .conf file directly into Happ or paste the copied text.
+        <button onclick="copyHappFormat()" style="width:100%">📋 Copy to Clipboard</button>
+        
+        <p class="small" style="margin-top:10px; font-size:11px; opacity:0.7; line-height:1.4">
+            <b>How to use:</b><br>
+            1. Click "Copy to Clipboard" above.<br>
+            2. Open Happ/Hiddify.<br>
+            3. Click "+" then "Import from Clipboard".
         </p>
     </div>
 
     <hr style="border:0; border-top:var(--border); margin: 20px 0">
 
-    <h4>📦 Regular Export</h4>
+    <h4>📦 Export Files</h4>
     <div class="row">
         <button class="ghost" onclick="downloadTXT()" style="flex:1">TXT</button>
         <button class="ghost" onclick="downloadJSON()" style="flex:1">JSON</button>
@@ -188,6 +203,16 @@ button.ghost:hover{background:rgba(255,255,255,0.05)}
 
 </div>
 
+<!-- QR MODAL -->
+<div id="qrModal" class="modal">
+    <div class="modal-content">
+        <h3 style="margin-top:0">Scan Config</h3>
+        <canvas id="qrCanvas"></canvas>
+        <br>
+        <button class="close-modal" onclick="closeQr()">Close</button>
+    </div>
+</div>
+
 <script>
 /* --- CONFIGURATION --- */
 const HAPP_SUPPORT_ID = "https://t.me/TheFachur";
@@ -195,7 +220,7 @@ const HAPP_SUPPORT_ID = "https://t.me/TheFachur";
 /* --- STATE --- */
 const subInput = document.getElementById("sub");
 const outList = document.getElementById("output-list");
-let allLines = [];
+const modal = document.getElementById("qrModal");
 let parsedConfigs = []; // Stores objects {raw, type, alias, ip, port}
 let currentTab = "all";
 
@@ -241,13 +266,13 @@ async function generate(){
         const btn = document.querySelector('button[onclick="generate()"]');
         btn.innerText = "Downloading...";
         try {
-            // Using a CORS proxy to bypass browser restrictions
+            // Using a CORS proxy
             let r = await fetch(`https://corsproxy.io/?${encodeURIComponent(v)}`);
             if(!r.ok) throw new Error("Fetch failed");
             v = await r.text();
-            saveHistory(subInput.value); // Save the URL
+            saveHistory(subInput.value); 
         } catch(e) {
-            alert("Could not download link automatically. Please open the link in a new tab, copy the text content, and paste it here.");
+            alert("Could not download link automatically. Please copy the link content manually.");
             btn.innerText = "🔓 Decode & Generate";
             return;
         }
@@ -256,7 +281,7 @@ async function generate(){
         saveHistory(v.substring(0, 50) + "...");
     }
 
-    // Attempt Base64 Decode of entire body
+    // Attempt Base64 Decode
     if(!v.includes("://") && isB64(v)) {
         let d = dec(v);
         if(d) v = d;
@@ -304,8 +329,9 @@ function render() {
                 <div class="config-meta">${c.ip}:${c.port}</div>
             </div>
             <div style="display:flex; gap:5px; align-items:center">
-                <div class="ping-badge" id="ping-${idx}" onclick="testPing('${c.ip}', ${c.port}, ${idx})">Test Ping</div>
-                <button class="action-btn" onclick="copyOne('${c.raw}')">📋</button>
+                <div class="ping-badge" id="ping-${idx}" onclick="testPing('${c.ip}', ${c.port}, ${idx})">Ping</div>
+                <button class="action-btn" onclick="showQr('${c.raw}')" title="QR Code">📱</button>
+                <button class="action-btn" onclick="copyOne('${c.raw}')" title="Copy">📋</button>
             </div>
         `;
         outList.appendChild(el);
@@ -322,27 +348,39 @@ function updateCounter(count) {
         `VM: ${m.vmess} VL: ${m.vless} TR: ${m.trojan} SS: ${m.ss}`;
 }
 
-/* --- PING FUNCTION (ESTIMATION) --- */
+/* --- QR CODE --- */
+function showQr(text) {
+    const qr = new QRious({
+        element: document.getElementById('qrCanvas'),
+        value: text,
+        size: 250,
+        level: 'H'
+    });
+    modal.style.display = 'flex';
+}
+function closeQr() {
+    modal.style.display = 'none';
+}
+window.onclick = function(event) {
+    if (event.target == modal) closeQr();
+}
+
+/* --- PING FUNCTION --- */
 async function testPing(ip, port, idx) {
     let el = document.getElementById(`ping-${idx}`);
-    el.innerText = "Wait...";
+    el.innerText = "...";
     el.className = "ping-badge";
     
     const start = performance.now();
     try {
-        // We use fetch with no-cors. This is a TCP/HTTP connectivity check.
-        // It's not ICMP, but estimates connection time to the server.
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
 
         await fetch(`http://${ip}:${port}`, {
             mode: 'no-cors', 
             cache: 'no-cache',
             signal: controller.signal
-        }).catch(e => {
-            // Ignore protocol errors, we just want timing
-            if(e.name === 'AbortError') throw e;
-        });
+        }).catch(e => { if(e.name === 'AbortError') throw e; });
         
         clearTimeout(timeoutId);
         const duration = Math.round(performance.now() - start);
@@ -360,33 +398,26 @@ async function testPing(ip, port, idx) {
 
 async function testAllPings() {
     parsedConfigs.forEach((c, idx) => {
-        // Add a slight delay between pings to avoid browser throttling
         setTimeout(() => {
             if(document.getElementById(`ping-${idx}`)) testPing(c.ip, c.port, idx);
-        }, idx * 200);
+        }, idx * 150);
     });
 }
 
 /* --- HAPP EXPORT LOGIC --- */
-function getHappContent() {
+function copyHappFormat() {
     // 1. Header
     let content = `#support-url: ${HAPP_SUPPORT_ID}\n`;
     // 2. Add Configs
     content += parsedConfigs.map(c => c.raw).join('\n');
-    return content;
-}
-
-function copyHappFormat() {
-    const text = getHappContent();
-    navigator.clipboard.writeText(text).then(() => {
-        alert("✅ Copied Happ format!\nHeader added: #support-url: " + HAPP_SUPPORT_ID);
+    
+    navigator.clipboard.writeText(content).then(() => {
+        const btn = document.querySelector('.happ-box button');
+        const oldText = btn.innerText;
+        btn.innerText = "✅ Copied!";
+        setTimeout(() => btn.innerText = oldText, 2000);
+        alert("Copied to clipboard!\n\nNow open Happ and select 'Import from Clipboard'.");
     });
-}
-
-function downloadHappFile() {
-    const text = getHappContent();
-    const date = new Date().toISOString().slice(0,10);
-    dl(text, `Happ_Config_${date}.conf`);
 }
 
 /* --- OTHER EXPORTS --- */
@@ -396,7 +427,9 @@ function copyRaw() {
 }
 
 function copyOne(txt) {
-    navigator.clipboard.writeText(txt);
+    navigator.clipboard.writeText(txt).then(() => {
+        // Subtle toast could go here
+    });
 }
 
 function downloadTXT() {
@@ -410,7 +443,6 @@ function downloadJSON() {
 function downloadClash() {
     let y = "proxies:\n";
     parsedConfigs.filter(c => c.type === 'vmess').forEach((c, i) => {
-        // Simple clash generator for VMess
         y += `  - name: ${c.alias}\n    type: vmess\n    server: ${c.ip}\n    port: ${c.port}\n    uuid: ${c.obj.id}\n    alterId: 0\n    cipher: auto\n    tls: ${c.obj.tls === 'tls'}\n    network: ${c.obj.net}\n`;
         if(c.obj.net === 'ws') {
             y += `    ws-opts:\n      path: ${c.obj.path}\n      headers:\n        Host: ${c.obj.host}\n`;
