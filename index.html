@@ -1,360 +1,478 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>دیکودر سابسکریپشن | Subscription Decoder</title>
-    
-    <!-- React & ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- Babel for JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Tailwind Config for Font -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Tahoma', 'Vazirmatn', 'Arial', 'sans-serif'],
-                        mono: ['Consolas', 'Monaco', 'monospace'],
-                    }
-                }
-            }
-        }
-    </script>
+<meta charset="UTF-8">
+<title>SUB Config Decoder — PRO MODE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <style>
-        /* Custom Scrollbar for a premium feel */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569; 
-        }
-    </style>
+<style>
+:root{
+--bg:#0b1020;--card:#151c2f;--accent:#5c7cff;--text:#e6eef8;
+--muted:#94a3b8;--border:1px solid rgba(255,255,255,.08);
+--success:#10b981;--error:#ef4444;--warning:#f59e0b;
+}
+[data-theme="light"]{
+--bg:#f8fafc;--card:#fff;--accent:#4f46e5;--text:#1e293b;
+--muted:#64748b;--border:1px solid rgba(0,0,0,.08)
+}
+*{box-sizing:border-box;font-family:Inter,Segoe UI, sans-serif}
+body{margin:0;background:var(--bg);color:var(--text);padding:16px;min-height:100vh}
+.container{max-width:1200px;margin:auto;display:grid;grid-template-columns:1fr 380px;gap:20px}
+.card{background:var(--card);border-radius:16px;padding:20px;border:var(--border);box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);}
+textarea,input,button{
+background:rgba(0,0,0,0.2);color:var(--text);border-radius:10px;
+border:var(--border);padding:12px;outline:none;transition:all 0.2s;
+}
+[data-theme="light"] textarea, [data-theme="light"] input {background: #f1f5f9;}
+
+textarea{width:100%;height:150px;font-family:monospace;font-size:12px;resize:vertical}
+input:focus, textarea:focus {border-color: var(--accent);}
+
+button{cursor:pointer;background:var(--accent);border:none;font-weight:600;color:white}
+button:hover{opacity:0.9;transform:translateY(-1px)}
+button:active{transform:translateY(0)}
+button.ghost{background:transparent;border:var(--border);color:var(--text)}
+button.ghost:hover{background:rgba(255,255,255,0.05)}
+[data-theme="light"] button.ghost:hover{background:rgba(0,0,0,0.05)}
+
+.tabs{display:flex;gap:5px;margin-bottom:15px;background:rgba(0,0,0,0.2);padding:5px;border-radius:12px}
+.tabs button{flex:1;background:transparent;color:var(--muted);padding:8px;border-radius:8px;font-size:13px}
+.tabs button.active{background:var(--accent);color:white;box-shadow:0 2px 4px rgba(0,0,0,0.2)}
+
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.small{font-size:13px;color:var(--muted)}
+.counter span{margin-right:10px;font-family:monospace}
+
+/* List View Styles */
+.config-list {
+    margin-top: 15px;
+    height: 500px;
+    overflow-y: auto;
+    border: var(--border);
+    border-radius: 12px;
+    background: rgba(0,0,0,0.1);
+}
+.config-item {
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    gap: 10px;
+    padding: 12px;
+    border-bottom: var(--border);
+    align-items: center;
+    transition: background 0.2s;
+}
+.config-item:hover {background: rgba(255,255,255,0.03);}
+.config-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--accent);
+}
+.config-details {overflow: hidden;}
+.config-name {font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+.config-meta {font-size: 11px; color: var(--muted); margin-top: 2px; font-family: monospace;}
+
+.ping-badge {
+    min-width: 60px;
+    text-align: center;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: bold;
+    background: rgba(255,255,255,0.05);
+    cursor: pointer;
+}
+.ping-badge.good {color: var(--success); background: rgba(16, 185, 129, 0.1);}
+.ping-badge.med {color: var(--warning); background: rgba(245, 158, 11, 0.1);}
+.ping-badge.bad {color: var(--error); background: rgba(239, 68, 68, 0.1);}
+.ping-badge:hover {filter: brightness(1.2);}
+
+.action-btn {padding: 6px; border-radius: 6px; background: transparent; border: var(--border);}
+
+/* Happ Section */
+.happ-box {
+    margin-top: 20px;
+    padding: 15px;
+    background: linear-gradient(45deg, rgba(92, 124, 255, 0.1), transparent);
+    border: 1px solid rgba(92, 124, 255, 0.2);
+    border-radius: 12px;
+}
+
+@media(max-width:900px){
+    .container{grid-template-columns:1fr}
+    .config-list {height: 400px;}
+}
+</style>
 </head>
-<body class="bg-slate-950 text-slate-200 min-h-screen">
 
-    <div id="root"></div>
+<body>
+<div class="container">
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+<!-- LEFT PANEL -->
+<div class="card">
+    <div class="row" style="justify-content: space-between; margin-bottom: 10px;">
+        <h2>🚀 Config Decoder <span style="font-size:12px; opacity:0.6; font-weight:400">v2.0</span></h2>
+        <div class="row">
+            <button class="ghost" onclick="testAllPings()">⚡ Test All Pings</button>
+            <button class="ghost" onclick="clearAll()">🗑️ Clear</button>
+        </div>
+    </div>
 
-        // --- Icons (Inline SVGs to avoid external dependencies in single file) ---
-        const Icons = {
-            Terminal: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>,
-            Code: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>,
-            AlertCircle: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>,
-            Server: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>,
-            Clipboard: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>,
-            Check: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="20 6 9 17 4 12"></polyline></svg>,
-            Activity: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>,
-            Shield: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>,
-            Wifi: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+    <textarea id="sub" placeholder="Paste subscription URL (https://...) or Configs (vmess://, vless://...) or Base64 string here..."></textarea>
+    
+    <div class="row" style="margin-top:10px">
+        <button onclick="generate()" style="flex:2">🔓 Decode & Generate</button>
+        <button class="ghost" onclick="copyRaw()" style="flex:1">📋 Copy Raw</button>
+    </div>
+
+    <div style="margin-top:20px">
+        <div class="tabs">
+            <button class="active" onclick="setTab('all')" id="tab-all">All</button>
+            <button onclick="setTab('vmess')" id="tab-vmess">VMESS</button>
+            <button onclick="setTab('vless')" id="tab-vless">VLESS</button>
+            <button onclick="setTab('trojan')" id="tab-trojan">Trojan</button>
+            <button onclick="setTab('ss')" id="tab-ss">SS</button>
+        </div>
+        
+        <input id="search" placeholder="🔍 Filter configs..." style="width:100%; margin-bottom:10px">
+        
+        <div id="output-list" class="config-list">
+            <div style="padding:20px; text-align:center; color:var(--muted)">No configs loaded yet...</div>
+        </div>
+        
+        <div class="row counter small" style="margin-top:10px; justify-content:space-between">
+            <span id="cnt">Ready</span>
+        </div>
+    </div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="card">
+    <div class="row" style="justify-content: space-between;">
+        <strong>⚙ Utilities</strong>
+        <button class="ghost" onclick="toggleTheme()" style="padding:5px 10px">🌙/☀️</button>
+    </div>
+
+    <!-- HAPP EXPORT SECTION -->
+    <div class="happ-box">
+        <h4 style="margin:0 0 10px 0; color: #60a5fa">🔹 Happ / Telegram Support</h4>
+        <p class="small" style="margin-bottom:12px">Export configs with <b style="color:#fff">TheFachur</b> support tag.</p>
+        
+        <div style="display:grid; gap:8px">
+            <button onclick="copyHappFormat()">📋 Copy for Happ</button>
+            <button class="ghost" onclick="downloadHappFile()">💾 Download .conf file</button>
+        </div>
+        <p class="small" style="margin-top:8px; font-size:11px; opacity:0.7">
+            * Import the .conf file directly into Happ or paste the copied text.
+        </p>
+    </div>
+
+    <hr style="border:0; border-top:var(--border); margin: 20px 0">
+
+    <h4>📦 Regular Export</h4>
+    <div class="row">
+        <button class="ghost" onclick="downloadTXT()" style="flex:1">TXT</button>
+        <button class="ghost" onclick="downloadJSON()" style="flex:1">JSON</button>
+        <button class="ghost" onclick="downloadClash()" style="flex:1">Clash</button>
+    </div>
+
+    <h4 style="margin-top:20px">🕘 History</h4>
+    <div class="history small" id="history"></div>
+</div>
+
+</div>
+
+<script>
+/* --- CONFIGURATION --- */
+const HAPP_SUPPORT_ID = "https://t.me/TheFachur";
+
+/* --- STATE --- */
+const subInput = document.getElementById("sub");
+const outList = document.getElementById("output-list");
+let allLines = [];
+let parsedConfigs = []; // Stores objects {raw, type, alias, ip, port}
+let currentTab = "all";
+
+/* --- UTILS --- */
+const isB64 = s => {try{return btoa(atob(s.replace(/\s+/g,'')))===s.replace(/\s+/g,'')}catch{return false}}
+const dec = s => {try{return decodeURIComponent(escape(atob(s)))}catch{try{return atob(s)}catch{return null}}}
+
+/* --- DECODERS --- */
+function parseVmess(l) {
+    try {
+        let j = JSON.parse(atob(l.replace("vmess://", "")));
+        return {
+            type: 'vmess',
+            alias: j.ps || "VMess",
+            ip: j.add,
+            port: j.port,
+            raw: l,
+            obj: j
         };
+    } catch { return null; }
+}
 
-        // --- Components ---
-
-        const Card = ({ children, className = "" }) => (
-            <div className={`bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl overflow-hidden ${className}`}>
-                {children}
-            </div>
-        );
-
-        const Badge = ({ children, color = "blue" }) => {
-            const colors = {
-                blue: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-                purple: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-                green: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-                orange: "bg-orange-500/10 text-orange-400 border-orange-500/20",
-                slate: "bg-slate-500/10 text-slate-400 border-slate-500/20",
-            };
-            return (
-                <span className={`px-2 py-0.5 text-xs font-medium rounded border ${colors[color] || colors.slate}`}>
-                    {children}
-                </span>
-            );
+function parseUrlBased(l, type) {
+    try {
+        let u = new URL(l);
+        return {
+            type: type,
+            alias: decodeURIComponent(u.hash.slice(1)) || type.toUpperCase(),
+            ip: u.hostname,
+            port: u.port,
+            raw: l
         };
+    } catch { return null; }
+}
 
-        // --- Main App Logic ---
-
-        function App() {
-            const [input, setInput] = useState('');
-            const [configs, setConfigs] = useState([]);
-            const [error, setError] = useState(null);
-            const [copiedIndex, setCopiedIndex] = useState(null);
-
-            const b64DecodeUnicode = (str) => {
-                try {
-                    return decodeURIComponent(
-                        atob(str).split('').map(function(c) {
-                            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                        }).join('')
-                    );
-                } catch (e) {
-                    try { return atob(str); } catch (err) { return null; }
-                }
-            };
-
-            const parseVmess = (url) => {
-                try {
-                    const b64 = url.replace('vmess://', '');
-                    const json = JSON.parse(b64DecodeUnicode(b64));
-                    return {
-                        type: 'vmess',
-                        name: json.ps || 'Vmess Config',
-                        address: json.add,
-                        port: json.port,
-                        id: json.id,
-                        net: json.net,
-                        tls: json.tls,
-                        path: json.path,
-                        host: json.host,
-                        original: url
-                    };
-                } catch (e) { return null; }
-            };
-
-            const parseUrlBased = (url, type) => {
-                try {
-                    const cleanUrl = url.trim();
-                    const parsedUrl = new URL(cleanUrl);
-                    const params = new URLSearchParams(parsedUrl.search);
-                    
-                    return {
-                        type: type,
-                        name: decodeURIComponent(parsedUrl.hash.slice(1)) || `${type.toUpperCase()} Config`,
-                        address: parsedUrl.hostname,
-                        port: parsedUrl.port,
-                        id: parsedUrl.username,
-                        net: params.get('type') || 'tcp',
-                        tls: params.get('security') || 'none',
-                        path: params.get('serviceName') || params.get('path') || '',
-                        host: params.get('sni') || params.get('host') || '',
-                        original: url
-                    };
-                } catch (e) { return null; }
-            };
-
-            const parseShadowsocks = (url) => {
-                try {
-                    const cleanUrl = url.trim();
-                    let name = 'Shadowsocks';
-                    if(cleanUrl.includes('#')) {
-                        name = decodeURIComponent(cleanUrl.split('#')[1]);
-                    }
-                    return {
-                        type: 'ss',
-                        name: name,
-                        original: cleanUrl,
-                        address: 'Encrypted',
-                        port: '---'
-                    };
-                } catch(e) { return null; }
-            }
-
-            const decodeSubscription = () => {
-                setError(null);
-                setConfigs([]);
-
-                if (!input.trim()) return;
-
-                let decodedString = input.trim();
-                
-                // Try Base64 decode first
-                if (!input.includes('://') && !input.includes(' ')) {
-                    const decoded = b64DecodeUnicode(input);
-                    if (decoded) decodedString = decoded;
-                }
-
-                const lines = decodedString.split(/\r?\n/).filter(line => line.trim() !== '');
-                
-                const parsedConfigs = lines.map(line => {
-                    const l = line.trim();
-                    if (l.startsWith('vmess://')) return parseVmess(l);
-                    if (l.startsWith('vless://')) return parseUrlBased(l, 'vless');
-                    if (l.startsWith('trojan://')) return parseUrlBased(l, 'trojan');
-                    if (l.startsWith('ss://')) return parseShadowsocks(l);
-                    return null;
-                }).filter(item => item !== null);
-
-                if (parsedConfigs.length === 0) {
-                    setError('هیچ کانفیگ معتبری یافت نشد. لطفاً لینک سابسکریپشن یا کانفیگ‌ها را بررسی کنید.');
-                } else {
-                    setConfigs(parsedConfigs);
-                }
-            };
-
-            const copyToClipboard = (text, index) => {
-                navigator.clipboard.writeText(text);
-                setCopiedIndex(index);
-                setTimeout(() => setCopiedIndex(null), 2000);
-            };
-
-            const getTypeColor = (type) => {
-                switch (type) {
-                    case 'vmess': return 'purple';
-                    case 'vless': return 'blue';
-                    case 'trojan': return 'green';
-                    case 'ss': return 'orange';
-                    default: return 'slate';
-                }
-            };
-
-            return (
-                <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-8 animate-fade-in">
-                    
-                    {/* Header */}
-                    <header className="text-center space-y-4 pt-8">
-                        <div className="inline-flex items-center justify-center p-3 bg-indigo-600/20 rounded-2xl mb-2">
-                            <Icons.Terminal className="w-10 h-10 text-indigo-400" />
-                        </div>
-                        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
-                            دیکودر سابسکریپشن
-                        </h1>
-                        <p className="text-slate-400 max-w-lg mx-auto leading-relaxed">
-                            لینک سابسکریپشن (Base64) یا لیست کانفیگ‌ها را وارد کنید. سازگار با پنل‌های مرزبان، X-UI و ...
-                        </p>
-                    </header>
-
-                    {/* Input Area */}
-                    <Card className="p-1">
-                        <div className="relative">
-                            <textarea
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                placeholder="لینک سابسکریپشن (Base64) یا کانفیگ‌ها را اینجا پیست کنید..."
-                                className="w-full h-32 bg-slate-900/50 text-slate-100 p-4 rounded-t-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-none placeholder-slate-600 font-mono text-sm"
-                                style={{ direction: 'ltr' }}
-                            />
-                            <div className="bg-slate-900/80 p-3 rounded-b-lg flex flex-col sm:flex-row justify-between items-center gap-3 border-t border-slate-800">
-                                <span className="text-xs text-slate-500 hidden sm:block">
-                                    پشتیبانی: Vmess, Vless, Trojan, Shadowsocks
-                                </span>
-                                <button
-                                    onClick={decodeSubscription}
-                                    className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded-lg font-medium transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-2"
-                                >
-                                    <Icons.Code className="w-4 h-4" />
-                                    دیکود و بررسی
-                                </button>
-                            </div>
-                        </div>
-                    </Card>
-
-                    {/* Error Message */}
-                    {error && (
-                        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl flex items-center gap-3">
-                            <Icons.AlertCircle className="w-5 h-5 shrink-0" />
-                            <p className="text-sm">{error}</p>
-                        </div>
-                    )}
-
-                    {/* Results List */}
-                    {configs.length > 0 && (
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between px-2">
-                                <h2 className="text-lg font-semibold text-slate-200 flex items-center gap-2">
-                                    <Icons.Server className="w-5 h-5 text-indigo-400" />
-                                    لیست سرورها
-                                    <Badge color="slate">{configs.length}</Badge>
-                                </h2>
-                            </div>
-
-                            <div className="grid gap-4 md:grid-cols-2">
-                                {configs.map((config, idx) => (
-                                    <Card key={idx} className="hover:border-slate-600 transition-colors group">
-                                        <div className="p-4 space-y-4">
-                                            
-                                            {/* Config Header */}
-                                            <div className="flex justify-between items-start gap-3">
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <Badge color={getTypeColor(config.type)}>
-                                                            {config.type.toUpperCase()}
-                                                        </Badge>
-                                                        {config.net && (
-                                                            <span className="text-[10px] text-slate-500 uppercase tracking-wider font-mono bg-slate-800 px-1.5 py-0.5 rounded">
-                                                                {config.net}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <h3 className="font-medium text-slate-200 truncate pr-1 text-sm" title={config.name}>
-                                                        {config.name}
-                                                    </h3>
-                                                </div>
-                                                <button
-                                                    onClick={() => copyToClipboard(config.original, idx)}
-                                                    className={`p-2 rounded-lg transition-all ${
-                                                        copiedIndex === idx 
-                                                            ? 'bg-emerald-500/20 text-emerald-400' 
-                                                            : 'bg-slate-800 hover:bg-slate-700 text-slate-400'
-                                                    }`}
-                                                    title="کپی کانفیگ"
-                                                >
-                                                    {copiedIndex === idx ? <Icons.Check className="w-4 h-4" /> : <Icons.Clipboard className="w-4 h-4" />}
-                                                </button>
-                                            </div>
-
-                                            {/* Config Details */}
-                                            {config.address && config.address !== 'Encrypted' && (
-                                                <div className="space-y-2 bg-slate-900/50 rounded-lg p-3 text-xs font-mono" dir="ltr">
-                                                    <div className="flex items-center gap-2 text-slate-400">
-                                                        <Icons.Server className="w-3 h-3" />
-                                                        <span className="truncate">{config.address}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-2 text-slate-400">
-                                                        <Icons.Activity className="w-3 h-3" />
-                                                        <span>{config.port}</span>
-                                                    </div>
-                                                    {config.tls && config.tls !== 'none' && (
-                                                        <div className="flex items-center gap-2 text-emerald-500/80">
-                                                            <Icons.Shield className="w-3 h-3" />
-                                                            <span>{config.tls}</span>
-                                                        </div>
-                                                    )}
-                                                    {config.path && (
-                                                        <div className="flex items-center gap-2 text-slate-500">
-                                                            <Icons.Wifi className="w-3 h-3" />
-                                                            <span className="truncate max-w-[150px]">{config.path}</span>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
-
-                                            {/* SS Fallback */}
-                                            {config.type === 'ss' && (
-                                                <div className="p-3 bg-slate-900/30 rounded-lg text-xs text-slate-500 text-center">
-                                                    اطلاعات رمزنگاری شده است
-                                                </div>
-                                            )}
-                                        </div>
-                                    </Card>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            );
+/* --- GENERATE LOGIC --- */
+async function generate(){
+    let v = subInput.value.trim(); 
+    if(!v) return;
+    
+    // Auto-download if link
+    if(v.startsWith("http")){
+        const btn = document.querySelector('button[onclick="generate()"]');
+        btn.innerText = "Downloading...";
+        try {
+            // Using a CORS proxy to bypass browser restrictions
+            let r = await fetch(`https://corsproxy.io/?${encodeURIComponent(v)}`);
+            if(!r.ok) throw new Error("Fetch failed");
+            v = await r.text();
+            saveHistory(subInput.value); // Save the URL
+        } catch(e) {
+            alert("Could not download link automatically. Please open the link in a new tab, copy the text content, and paste it here.");
+            btn.innerText = "🔓 Decode & Generate";
+            return;
         }
+        btn.innerText = "🔓 Decode & Generate";
+    } else {
+        saveHistory(v.substring(0, 50) + "...");
+    }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+    // Attempt Base64 Decode of entire body
+    if(!v.includes("://") && isB64(v)) {
+        let d = dec(v);
+        if(d) v = d;
+    }
+
+    let lines = v.split(/\r?\n/).filter(x => x.trim());
+    parsedConfigs = [];
+
+    lines.forEach(l => {
+        l = l.trim();
+        let p = null;
+        if(l.startsWith("vmess://")) p = parseVmess(l);
+        else if(l.startsWith("vless://")) p = parseUrlBased(l, "vless");
+        else if(l.startsWith("trojan://")) p = parseUrlBased(l, "trojan");
+        else if(l.startsWith("ss://")) p = parseUrlBased(l, "ss");
+        
+        if(p) parsedConfigs.push(p);
+    });
+
+    render();
+}
+
+/* --- RENDER UI --- */
+function render() {
+    let q = document.getElementById("search").value.toLowerCase();
+    outList.innerHTML = "";
+    
+    let filtered = parsedConfigs.filter(c => {
+        if(currentTab !== "all" && c.type !== currentTab) return false;
+        return (c.alias + c.ip).toLowerCase().includes(q);
+    });
+
+    if(filtered.length === 0) {
+        outList.innerHTML = `<div style="padding:20px; text-align:center; color:var(--muted)">No configs found.</div>`;
+        return;
+    }
+
+    filtered.forEach((c, idx) => {
+        let el = document.createElement("div");
+        el.className = "config-item";
+        el.innerHTML = `
+            <div class="config-icon">${c.type.toUpperCase().slice(0,2)}</div>
+            <div class="config-details">
+                <div class="config-name" title="${c.alias}">${c.alias}</div>
+                <div class="config-meta">${c.ip}:${c.port}</div>
+            </div>
+            <div style="display:flex; gap:5px; align-items:center">
+                <div class="ping-badge" id="ping-${idx}" onclick="testPing('${c.ip}', ${c.port}, ${idx})">Test Ping</div>
+                <button class="action-btn" onclick="copyOne('${c.raw}')">📋</button>
+            </div>
+        `;
+        outList.appendChild(el);
+    });
+
+    updateCounter(filtered.length);
+}
+
+function updateCounter(count) {
+    let m = {vmess:0, vless:0, trojan:0, ss:0};
+    parsedConfigs.forEach(c => m[c.type]++);
+    document.getElementById("cnt").innerHTML = 
+        `Total: <b>${count}</b> <span style="opacity:0.3">|</span> ` +
+        `VM: ${m.vmess} VL: ${m.vless} TR: ${m.trojan} SS: ${m.ss}`;
+}
+
+/* --- PING FUNCTION (ESTIMATION) --- */
+async function testPing(ip, port, idx) {
+    let el = document.getElementById(`ping-${idx}`);
+    el.innerText = "Wait...";
+    el.className = "ping-badge";
+    
+    const start = performance.now();
+    try {
+        // We use fetch with no-cors. This is a TCP/HTTP connectivity check.
+        // It's not ICMP, but estimates connection time to the server.
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
+
+        await fetch(`http://${ip}:${port}`, {
+            mode: 'no-cors', 
+            cache: 'no-cache',
+            signal: controller.signal
+        }).catch(e => {
+            // Ignore protocol errors, we just want timing
+            if(e.name === 'AbortError') throw e;
+        });
+        
+        clearTimeout(timeoutId);
+        const duration = Math.round(performance.now() - start);
+        
+        el.innerText = duration + "ms";
+        if(duration < 500) el.classList.add("good");
+        else if(duration < 1500) el.classList.add("med");
+        else el.classList.add("bad");
+
+    } catch (e) {
+        el.innerText = "Timeout";
+        el.classList.add("bad");
+    }
+}
+
+async function testAllPings() {
+    parsedConfigs.forEach((c, idx) => {
+        // Add a slight delay between pings to avoid browser throttling
+        setTimeout(() => {
+            if(document.getElementById(`ping-${idx}`)) testPing(c.ip, c.port, idx);
+        }, idx * 200);
+    });
+}
+
+/* --- HAPP EXPORT LOGIC --- */
+function getHappContent() {
+    // 1. Header
+    let content = `#support-url: ${HAPP_SUPPORT_ID}\n`;
+    // 2. Add Configs
+    content += parsedConfigs.map(c => c.raw).join('\n');
+    return content;
+}
+
+function copyHappFormat() {
+    const text = getHappContent();
+    navigator.clipboard.writeText(text).then(() => {
+        alert("✅ Copied Happ format!\nHeader added: #support-url: " + HAPP_SUPPORT_ID);
+    });
+}
+
+function downloadHappFile() {
+    const text = getHappContent();
+    const date = new Date().toISOString().slice(0,10);
+    dl(text, `Happ_Config_${date}.conf`);
+}
+
+/* --- OTHER EXPORTS --- */
+function copyRaw() {
+    let text = parsedConfigs.map(c => c.raw).join('\n');
+    navigator.clipboard.writeText(text);
+}
+
+function copyOne(txt) {
+    navigator.clipboard.writeText(txt);
+}
+
+function downloadTXT() {
+    dl(parsedConfigs.map(c => c.raw).join('\n'), "configs.txt");
+}
+
+function downloadJSON() {
+    dl(JSON.stringify(parsedConfigs, null, 2), "configs.json");
+}
+
+function downloadClash() {
+    let y = "proxies:\n";
+    parsedConfigs.filter(c => c.type === 'vmess').forEach((c, i) => {
+        // Simple clash generator for VMess
+        y += `  - name: ${c.alias}\n    type: vmess\n    server: ${c.ip}\n    port: ${c.port}\n    uuid: ${c.obj.id}\n    alterId: 0\n    cipher: auto\n    tls: ${c.obj.tls === 'tls'}\n    network: ${c.obj.net}\n`;
+        if(c.obj.net === 'ws') {
+            y += `    ws-opts:\n      path: ${c.obj.path}\n      headers:\n        Host: ${c.obj.host}\n`;
+        }
+    });
+    dl(y, "clash_vmess_only.yaml");
+}
+
+function dl(content, filename) {
+    let a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([content], {type: "text/plain"}));
+    a.download = filename;
+    a.click();
+}
+
+/* --- TABS & SEARCH --- */
+function setTab(t) {
+    currentTab = t;
+    document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-'+t).classList.add('active');
+    render();
+}
+document.getElementById("search").oninput = render;
+
+/* --- THEME & HISTORY --- */
+function toggleTheme(){
+    let t = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", t);
+    localStorage.theme = t;
+}
+if(localStorage.theme) document.documentElement.setAttribute("data-theme", localStorage.theme);
+
+function saveHistory(v){
+    let h = JSON.parse(localStorage.history || "[]");
+    h.unshift(v); 
+    h = [...new Set(h)].slice(0, 5);
+    localStorage.history = JSON.stringify(h); 
+    loadHistory();
+}
+
+function loadHistory(){
+    let h = JSON.parse(localStorage.history || "[]");
+    let el = document.getElementById("history");
+    el.innerHTML = "";
+    h.forEach(x => {
+        let d = document.createElement("div");
+        d.textContent = x.length > 40 ? x.slice(0, 40) + "..." : x;
+        d.style.padding = "8px";
+        d.style.cursor = "pointer";
+        d.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
+        d.onclick = () => { subInput.value = x; generate(); };
+        el.appendChild(d);
+    });
+}
+function clearAll() {
+    subInput.value = "";
+    parsedConfigs = [];
+    render();
+}
+loadHistory();
+</script>
 </body>
 </html>
+
 
