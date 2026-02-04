@@ -2,125 +2,37 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SUB Config Decoder — PRO MODE</title>
+<title>SUB Config Decoder — GOD MODE</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- QR Code Library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 
 <style>
 :root{
 --bg:#0b1020;--card:#151c2f;--accent:#5c7cff;--text:#e6eef8;
---muted:#94a3b8;--border:1px solid rgba(255,255,255,.08);
---success:#10b981;--error:#ef4444;--warning:#f59e0b;
+--muted:#94a3b8;--border:1px solid rgba(255,255,255,.08)
 }
 [data-theme="light"]{
 --bg:#f8fafc;--card:#fff;--accent:#4f46e5;--text:#1e293b;
 --muted:#64748b;--border:1px solid rgba(0,0,0,.08)
 }
-*{box-sizing:border-box;font-family:Inter,Segoe UI, sans-serif}
-body{margin:0;background:var(--bg);color:var(--text);padding:16px;min-height:100vh}
-.container{max-width:1200px;margin:auto;display:grid;grid-template-columns:1fr 380px;gap:20px}
-.card{background:var(--card);border-radius:16px;padding:20px;border:var(--border);box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);}
+*{box-sizing:border-box;font-family:Inter,Segoe UI}
+body{margin:0;background:var(--bg);color:var(--text);padding:16px}
+.container{max-width:1100px;margin:auto;display:grid;grid-template-columns:1fr 360px;gap:16px}
+.card{background:var(--card);border-radius:16px;padding:16px;border:var(--border)}
 textarea,input,button{
-background:rgba(0,0,0,0.2);color:var(--text);border-radius:10px;
-border:var(--border);padding:12px;outline:none;transition:all 0.2s;
+background:#00000030;color:var(--text);border-radius:10px;
+border:var(--border);padding:12px
 }
-[data-theme="light"] textarea, [data-theme="light"] input {background: #f1f5f9;}
-
-textarea{width:100%;height:150px;font-family:monospace;font-size:12px;resize:vertical}
-input:focus, textarea:focus {border-color: var(--accent);}
-
-button{cursor:pointer;background:var(--accent);border:none;font-weight:600;color:white}
-button:hover{opacity:0.9;transform:translateY(-1px)}
-button:active{transform:translateY(0)}
-button.ghost{background:transparent;border:var(--border);color:var(--text)}
-button.ghost:hover{background:rgba(255,255,255,0.05)}
-[data-theme="light"] button.ghost:hover{background:rgba(0,0,0,0.05)}
-
-.tabs{display:flex;gap:5px;margin-bottom:15px;background:rgba(0,0,0,0.2);padding:5px;border-radius:12px}
-.tabs button{flex:1;background:transparent;color:var(--muted);padding:8px;border-radius:8px;font-size:13px}
-.tabs button.active{background:var(--accent);color:white;box-shadow:0 2px 4px rgba(0,0,0,0.2)}
-
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+textarea{width:100%;height:380px;font-family:monospace}
+button{cursor:pointer;background:var(--accent);border:none;font-weight:600}
+button.ghost{background:transparent;border:var(--border)}
+.tabs button{flex:1}
+.row{display:flex;gap:8px;flex-wrap:wrap}
 .small{font-size:13px;color:var(--muted)}
-.counter span{margin-right:10px;font-family:monospace}
-
-/* List View Styles */
-.config-list {
-    margin-top: 15px;
-    height: 500px;
-    overflow-y: auto;
-    border: var(--border);
-    border-radius: 12px;
-    background: rgba(0,0,0,0.1);
-}
-.config-item {
-    display: grid;
-    grid-template-columns: 40px 1fr auto;
-    gap: 10px;
-    padding: 12px;
-    border-bottom: var(--border);
-    align-items: center;
-    transition: background 0.2s;
-}
-.config-item:hover {background: rgba(255,255,255,0.03);}
-.config-icon {
-    width: 36px;
-    height: 36px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: bold;
-    color: var(--accent);
-}
-.config-details {overflow: hidden;}
-.config-name {font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-.config-meta {font-size: 11px; color: var(--muted); margin-top: 2px; font-family: monospace;}
-
-.ping-badge {
-    min-width: 60px;
-    text-align: center;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: bold;
-    background: rgba(255,255,255,0.05);
-    cursor: pointer;
-}
-.ping-badge.good {color: var(--success); background: rgba(16, 185, 129, 0.1);}
-.ping-badge.med {color: var(--warning); background: rgba(245, 158, 11, 0.1);}
-.ping-badge.bad {color: var(--error); background: rgba(239, 68, 68, 0.1);}
-.ping-badge:hover {filter: brightness(1.2);}
-
-.action-btn {padding: 6px; border-radius: 6px; background: transparent; border: var(--border);}
-.action-btn:hover {background: rgba(255,255,255,0.1);}
-
-/* Happ Section */
-.happ-box {
-    margin-top: 20px;
-    padding: 15px;
-    background: linear-gradient(45deg, rgba(92, 124, 255, 0.1), transparent);
-    border: 1px solid rgba(92, 124, 255, 0.2);
-    border-radius: 12px;
-}
-
-/* Modal */
-.modal {
-    display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.8); align-items: center; justify-content: center;
-}
-.modal-content {
-    background-color: var(--card); padding: 20px; border-radius: 16px; border: var(--border);
-    text-align: center; max-width: 90%;
-}
-.close-modal {margin-top: 15px; background: var(--error);}
-
+.counter span{margin-right:10px}
+.history div{cursor:pointer;padding:6px;border-radius:6px}
+.history div:hover{background:#ffffff10}
 @media(max-width:900px){
-    .container{grid-template-columns:1fr}
-    .config-list {height: 400px;}
+.container{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -128,383 +40,182 @@ button.ghost:hover{background:rgba(255,255,255,0.05)}
 <body>
 <div class="container">
 
-<!-- LEFT PANEL -->
+<!-- LEFT -->
 <div class="card">
-    <div class="row" style="justify-content: space-between; margin-bottom: 10px;">
-        <h2>🚀 Config Decoder <span style="font-size:12px; opacity:0.6; font-weight:400">PRO</span></h2>
-        <div class="row">
-            <button class="ghost" onclick="testAllPings()">⚡ Test All Pings</button>
-            <button class="ghost" onclick="clearAll()">🗑️ Clear</button>
-        </div>
-    </div>
+<h2>🚀 SUB Config Decoder — God Mode</h2>
+<p class="small">Paste subscription URL / config / Base64</p>
 
-    <textarea id="sub" placeholder="Paste subscription URL (https://...) or Configs (vmess://, vless://...) or Base64 string here..."></textarea>
-    
-    <div class="row" style="margin-top:10px">
-        <button onclick="generate()" style="flex:2">🔓 Decode & Generate</button>
-        <button class="ghost" onclick="copyRaw()" style="flex:1">📋 Copy Raw</button>
-    </div>
-
-    <div style="margin-top:20px">
-        <div class="tabs">
-            <button class="active" onclick="setTab('all')" id="tab-all">All</button>
-            <button onclick="setTab('vmess')" id="tab-vmess">VMESS</button>
-            <button onclick="setTab('vless')" id="tab-vless">VLESS</button>
-            <button onclick="setTab('trojan')" id="tab-trojan">Trojan</button>
-            <button onclick="setTab('ss')" id="tab-ss">SS</button>
-        </div>
-        
-        <input id="search" placeholder="🔍 Filter configs..." style="width:100%; margin-bottom:10px">
-        
-        <div id="output-list" class="config-list">
-            <div style="padding:20px; text-align:center; color:var(--muted)">No configs loaded yet...</div>
-        </div>
-        
-        <div class="row counter small" style="margin-top:10px; justify-content:space-between">
-            <span id="cnt">Ready</span>
-        </div>
-    </div>
+<div class="row">
+<input id="sub" placeholder="https://example.com/sub.txt or vmess://..." style="flex:1">
+<button onclick="generate()">Generate</button>
 </div>
 
-<!-- RIGHT PANEL -->
+<div class="row" style="margin-top:8px">
+<button class="ghost" onclick="copyAll()">📋 Copy</button>
+<button class="ghost" onclick="downloadTXT()">💾 TXT</button>
+<button class="ghost" onclick="downloadJSON()">📦 JSON</button>
+<button class="ghost" onclick="downloadClash()">🧩 Clash</button>
+<button class="ghost" onclick="clearAll()">🗑️ Clear</button>
+</div>
+
+<div class="row tabs" style="margin-top:12px">
+<button onclick="setTab('all')">All</button>
+<button onclick="setTab('vmess')">VMESS</button>
+<button onclick="setTab('vless')">VLESS</button>
+<button onclick="setTab('trojan')">Trojan</button>
+<button onclick="setTab('ss')">SS</button>
+</div>
+
+<input id="search" placeholder="🔍 Live search..." style="margin-top:10px;width:100%">
+
+<textarea id="output" readonly></textarea>
+
+<div class="row counter small">
+<span id="cnt"></span>
+</div>
+</div>
+
+<!-- RIGHT -->
 <div class="card">
-    <div class="row" style="justify-content: space-between;">
-        <strong>⚙ Utilities</strong>
-        <button class="ghost" onclick="toggleTheme()" style="padding:5px 10px">🌙/☀️</button>
-    </div>
-
-    <!-- HAPP EXPORT SECTION -->
-    <div class="happ-box">
-        <h4 style="margin:0 0 10px 0; color: #60a5fa">🔹 Happ / Telegram Support</h4>
-        <p class="small" style="margin-bottom:12px">Use this to import into Happ with <b>TheFachur</b> tag.</p>
-        
-        <button onclick="copyHappFormat()" style="width:100%">📋 Copy to Clipboard</button>
-        
-        <p class="small" style="margin-top:10px; font-size:11px; opacity:0.7; line-height:1.4">
-            <b>How to use:</b><br>
-            1. Click "Copy to Clipboard" above.<br>
-            2. Open Happ/Hiddify.<br>
-            3. Click "+" then "Import from Clipboard".
-        </p>
-    </div>
-
-    <hr style="border:0; border-top:var(--border); margin: 20px 0">
-
-    <h4>📦 Export Files</h4>
-    <div class="row">
-        <button class="ghost" onclick="downloadTXT()" style="flex:1">TXT</button>
-        <button class="ghost" onclick="downloadJSON()" style="flex:1">JSON</button>
-        <button class="ghost" onclick="downloadClash()" style="flex:1">Clash</button>
-    </div>
-
-    <h4 style="margin-top:20px">🕘 History</h4>
-    <div class="history small" id="history"></div>
+<div class="row">
+<strong>⚙ Utilities</strong>
+<button class="ghost" onclick="toggleTheme()">🌙 / ☀️</button>
 </div>
 
+<h4>🕘 History</h4>
+<div class="history small" id="history"></div>
+
+<h4>ℹ Info</h4>
+<ul class="small">
+<li>Auto Decode Base64</li>
+<li>VMESS → JSON</li>
+<li>Live Filter</li>
+<li>LocalStorage History</li>
+</ul>
 </div>
 
-<!-- QR MODAL -->
-<div id="qrModal" class="modal">
-    <div class="modal-content">
-        <h3 style="margin-top:0">Scan Config</h3>
-        <canvas id="qrCanvas"></canvas>
-        <br>
-        <button class="close-modal" onclick="closeQr()">Close</button>
-    </div>
 </div>
 
 <script>
-/* --- CONFIGURATION --- */
-const HAPP_SUPPORT_ID = "https://t.me/TheFachur";
+const out=document.getElementById("output");
+const sub=document.getElementById("sub");
+let allLines=[],currentTab="all";
 
-/* --- STATE --- */
-const subInput = document.getElementById("sub");
-const outList = document.getElementById("output-list");
-const modal = document.getElementById("qrModal");
-let parsedConfigs = []; // Stores objects {raw, type, alias, ip, port}
-let currentTab = "all";
+/* ---------- Base64 ---------- */
+const isB64=s=>{try{return btoa(atob(s.replace(/\s+/g,'')))===s.replace(/\s+/g,'')}catch{return false}}
+const dec=s=>{try{return atob(s)}catch{return null}}
 
-/* --- UTILS --- */
-const isB64 = s => {try{return btoa(atob(s.replace(/\s+/g,'')))===s.replace(/\s+/g,'')}catch{return false}}
-const dec = s => {try{return decodeURIComponent(escape(atob(s)))}catch{try{return atob(s)}catch{return null}}}
-
-/* --- DECODERS --- */
-function parseVmess(l) {
-    try {
-        let j = JSON.parse(atob(l.replace("vmess://", "")));
-        return {
-            type: 'vmess',
-            alias: j.ps || "VMess",
-            ip: j.add,
-            port: j.port,
-            raw: l,
-            obj: j
-        };
-    } catch { return null; }
+/* ---------- VMESS ---------- */
+function decodeVmess(l){
+try{
+let j=JSON.parse(atob(l.replace("vmess://","")));
+return j
+}catch{return null}
 }
 
-function parseUrlBased(l, type) {
-    try {
-        let u = new URL(l);
-        return {
-            type: type,
-            alias: decodeURIComponent(u.hash.slice(1)) || type.toUpperCase(),
-            ip: u.hostname,
-            port: u.port,
-            raw: l
-        };
-    } catch { return null; }
-}
-
-/* --- GENERATE LOGIC --- */
+/* ---------- Generate ---------- */
 async function generate(){
-    let v = subInput.value.trim(); 
-    if(!v) return;
-    
-    // Auto-download if link
-    if(v.startsWith("http")){
-        const btn = document.querySelector('button[onclick="generate()"]');
-        btn.innerText = "Downloading...";
-        try {
-            // Using a CORS proxy
-            let r = await fetch(`https://corsproxy.io/?${encodeURIComponent(v)}`);
-            if(!r.ok) throw new Error("Fetch failed");
-            v = await r.text();
-            saveHistory(subInput.value); 
-        } catch(e) {
-            alert("Could not download link automatically. Please copy the link content manually.");
-            btn.innerText = "🔓 Decode & Generate";
-            return;
-        }
-        btn.innerText = "🔓 Decode & Generate";
-    } else {
-        saveHistory(v.substring(0, 50) + "...");
-    }
+let v=sub.value.trim(); if(!v) return;
+saveHistory(v);
 
-    // Attempt Base64 Decode
-    if(!v.includes("://") && isB64(v)) {
-        let d = dec(v);
-        if(d) v = d;
-    }
-
-    let lines = v.split(/\r?\n/).filter(x => x.trim());
-    parsedConfigs = [];
-
-    lines.forEach(l => {
-        l = l.trim();
-        let p = null;
-        if(l.startsWith("vmess://")) p = parseVmess(l);
-        else if(l.startsWith("vless://")) p = parseUrlBased(l, "vless");
-        else if(l.startsWith("trojan://")) p = parseUrlBased(l, "trojan");
-        else if(l.startsWith("ss://")) p = parseUrlBased(l, "ss");
-        
-        if(p) parsedConfigs.push(p);
-    });
-
-    render();
+if(v.startsWith("http")){
+let r=await fetch(v); v=await r.text();
 }
 
-/* --- RENDER UI --- */
-function render() {
-    let q = document.getElementById("search").value.toLowerCase();
-    outList.innerHTML = "";
-    
-    let filtered = parsedConfigs.filter(c => {
-        if(currentTab !== "all" && c.type !== currentTab) return false;
-        return (c.alias + c.ip).toLowerCase().includes(q);
-    });
+let lines=v.split(/\r?\n/).filter(Boolean);
+let res=[];
 
-    if(filtered.length === 0) {
-        outList.innerHTML = `<div style="padding:20px; text-align:center; color:var(--muted)">No configs found.</div>`;
-        return;
-    }
+lines.forEach(l=>{
+if(l.startsWith("vmess://")){
+let j=decodeVmess(l);
+if(j){
+res.push("### "+(j.ps||"VMESS"));
+res.push(JSON.stringify(j,null,2));
+}else res.push(l);
+}
+else if(isB64(l)){
+let d=dec(l); res.push(d||l)
+}else res.push(l)
+});
 
-    filtered.forEach((c, idx) => {
-        let el = document.createElement("div");
-        el.className = "config-item";
-        el.innerHTML = `
-            <div class="config-icon">${c.type.toUpperCase().slice(0,2)}</div>
-            <div class="config-details">
-                <div class="config-name" title="${c.alias}">${c.alias}</div>
-                <div class="config-meta">${c.ip}:${c.port}</div>
-            </div>
-            <div style="display:flex; gap:5px; align-items:center">
-                <div class="ping-badge" id="ping-${idx}" onclick="testPing('${c.ip}', ${c.port}, ${idx})">Ping</div>
-                <button class="action-btn" onclick="showQr('${c.raw}')" title="QR Code">📱</button>
-                <button class="action-btn" onclick="copyOne('${c.raw}')" title="Copy">📋</button>
-            </div>
-        `;
-        outList.appendChild(el);
-    });
-
-    updateCounter(filtered.length);
+allLines=res;
+render();
 }
 
-function updateCounter(count) {
-    let m = {vmess:0, vless:0, trojan:0, ss:0};
-    parsedConfigs.forEach(c => m[c.type]++);
-    document.getElementById("cnt").innerHTML = 
-        `Total: <b>${count}</b> <span style="opacity:0.3">|</span> ` +
-        `VM: ${m.vmess} VL: ${m.vless} TR: ${m.trojan} SS: ${m.ss}`;
+/* ---------- Render ---------- */
+function render(){
+let q=document.getElementById("search").value.toLowerCase();
+let f=allLines.filter(l=>{
+if(currentTab!=="all" && !l.startsWith(currentTab+"://")) return false;
+return l.toLowerCase().includes(q);
+});
+out.value=f.join("\n\n");
+count();
 }
 
-/* --- QR CODE --- */
-function showQr(text) {
-    const qr = new QRious({
-        element: document.getElementById('qrCanvas'),
-        value: text,
-        size: 250,
-        level: 'H'
-    });
-    modal.style.display = 'flex';
-}
-function closeQr() {
-    modal.style.display = 'none';
-}
-window.onclick = function(event) {
-    if (event.target == modal) closeQr();
+/* ---------- Counter ---------- */
+function count(){
+let m={vmess:0,vless:0,trojan:0,ss:0};
+allLines.forEach(l=>{
+Object.keys(m).forEach(p=>l.startsWith(p+"://")&&m[p]++)
+});
+document.getElementById("cnt").textContent=
+`VMESS:${m.vmess} | VLESS:${m.vless} | Trojan:${m.trojan} | SS:${m.ss}`;
 }
 
-/* --- PING FUNCTION --- */
-async function testPing(ip, port, idx) {
-    let el = document.getElementById(`ping-${idx}`);
-    el.innerText = "...";
-    el.className = "ping-badge";
-    
-    const start = performance.now();
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
+/* ---------- Tabs ---------- */
+function setTab(t){currentTab=t;render()}
 
-        await fetch(`http://${ip}:${port}`, {
-            mode: 'no-cors', 
-            cache: 'no-cache',
-            signal: controller.signal
-        }).catch(e => { if(e.name === 'AbortError') throw e; });
-        
-        clearTimeout(timeoutId);
-        const duration = Math.round(performance.now() - start);
-        
-        el.innerText = duration + "ms";
-        if(duration < 500) el.classList.add("good");
-        else if(duration < 1500) el.classList.add("med");
-        else el.classList.add("bad");
+/* ---------- Search ---------- */
+document.getElementById("search").oninput=render;
 
-    } catch (e) {
-        el.innerText = "Timeout";
-        el.classList.add("bad");
-    }
+/* ---------- Export ---------- */
+function copyAll(){navigator.clipboard.writeText(out.value)}
+function downloadTXT(){dl(out.value,"configs.txt")}
+function downloadJSON(){dl(JSON.stringify(allLines,null,2),"configs.json")}
+function downloadClash(){
+let y="proxies:\n";
+allLines.filter(l=>l.startsWith("vmess://")).forEach((l,i)=>{
+y+=`- name: vmess-${i}\n  type: vmess\n`;
+});
+dl(y,"clash.yaml")
+}
+function dl(c,n){
+let a=document.createElement("a");
+a.href=URL.createObjectURL(new Blob([c]));
+a.download=n;a.click();
 }
 
-async function testAllPings() {
-    parsedConfigs.forEach((c, idx) => {
-        setTimeout(() => {
-            if(document.getElementById(`ping-${idx}`)) testPing(c.ip, c.port, idx);
-        }, idx * 150);
-    });
-}
-
-/* --- HAPP EXPORT LOGIC --- */
-function copyHappFormat() {
-    // 1. Header
-    let content = `#support-url: ${HAPP_SUPPORT_ID}\n`;
-    // 2. Add Configs
-    content += parsedConfigs.map(c => c.raw).join('\n');
-    
-    navigator.clipboard.writeText(content).then(() => {
-        const btn = document.querySelector('.happ-box button');
-        const oldText = btn.innerText;
-        btn.innerText = "✅ Copied!";
-        setTimeout(() => btn.innerText = oldText, 2000);
-        alert("Copied to clipboard!\n\nNow open Happ and select 'Import from Clipboard'.");
-    });
-}
-
-/* --- OTHER EXPORTS --- */
-function copyRaw() {
-    let text = parsedConfigs.map(c => c.raw).join('\n');
-    navigator.clipboard.writeText(text);
-}
-
-function copyOne(txt) {
-    navigator.clipboard.writeText(txt).then(() => {
-        // Subtle toast could go here
-    });
-}
-
-function downloadTXT() {
-    dl(parsedConfigs.map(c => c.raw).join('\n'), "configs.txt");
-}
-
-function downloadJSON() {
-    dl(JSON.stringify(parsedConfigs, null, 2), "configs.json");
-}
-
-function downloadClash() {
-    let y = "proxies:\n";
-    parsedConfigs.filter(c => c.type === 'vmess').forEach((c, i) => {
-        y += `  - name: ${c.alias}\n    type: vmess\n    server: ${c.ip}\n    port: ${c.port}\n    uuid: ${c.obj.id}\n    alterId: 0\n    cipher: auto\n    tls: ${c.obj.tls === 'tls'}\n    network: ${c.obj.net}\n`;
-        if(c.obj.net === 'ws') {
-            y += `    ws-opts:\n      path: ${c.obj.path}\n      headers:\n        Host: ${c.obj.host}\n`;
-        }
-    });
-    dl(y, "clash_vmess_only.yaml");
-}
-
-function dl(content, filename) {
-    let a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([content], {type: "text/plain"}));
-    a.download = filename;
-    a.click();
-}
-
-/* --- TABS & SEARCH --- */
-function setTab(t) {
-    currentTab = t;
-    document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-'+t).classList.add('active');
-    render();
-}
-document.getElementById("search").oninput = render;
-
-/* --- THEME & HISTORY --- */
+/* ---------- Theme ---------- */
 function toggleTheme(){
-    let t = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", t);
-    localStorage.theme = t;
+let t=document.documentElement.getAttribute("data-theme");
+t=t==="light"?"dark":"light";
+document.documentElement.setAttribute("data-theme",t);
+localStorage.theme=t;
 }
-if(localStorage.theme) document.documentElement.setAttribute("data-theme", localStorage.theme);
+if(localStorage.theme)
+document.documentElement.setAttribute("data-theme",localStorage.theme);
 
+/* ---------- History ---------- */
 function saveHistory(v){
-    let h = JSON.parse(localStorage.history || "[]");
-    h.unshift(v); 
-    h = [...new Set(h)].slice(0, 5);
-    localStorage.history = JSON.stringify(h); 
-    loadHistory();
+let h=JSON.parse(localStorage.h||"[]");
+h.unshift(v); h=[...new Set(h)].slice(0,5);
+localStorage.h=JSON.stringify(h); loadHistory();
 }
-
 function loadHistory(){
-    let h = JSON.parse(localStorage.history || "[]");
-    let el = document.getElementById("history");
-    el.innerHTML = "";
-    h.forEach(x => {
-        let d = document.createElement("div");
-        d.textContent = x.length > 40 ? x.slice(0, 40) + "..." : x;
-        d.style.padding = "8px";
-        d.style.cursor = "pointer";
-        d.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
-        d.onclick = () => { subInput.value = x; generate(); };
-        el.appendChild(d);
-    });
-}
-function clearAll() {
-    subInput.value = "";
-    parsedConfigs = [];
-    render();
+let h=JSON.parse(localStorage.h||"[]");
+let el=document.getElementById("history");
+el.innerHTML="";
+h.forEach(x=>{
+let d=document.createElement("div");
+d.textContent=x.slice(0,40);
+d.onclick=()=>{sub.value=x;generate()}
+el.appendChild(d);
+});
 }
 loadHistory();
+
+function clearAll(){sub.value="";out.value="";allLines=[]}
 </script>
 </body>
 </html>
-
-
